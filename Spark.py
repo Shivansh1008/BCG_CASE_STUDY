@@ -29,3 +29,4 @@ df_tempp=df_temp.withColumn("count_rank",rank().over(Window.partitionBy("VEH_BOD
 df1.filter((col("PRSN_ALC_RSLT_ID") =='Positive') & col("DRVR_ZIP").isNotNull()).groupBy("DRVR_ZIP").agg(count('*').alias("Count")).orderBy(desc("Count")).limit(5).show()
 
 7--
+df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERTY") =='NONE') & col("VEH_DMAG_SCL_1_ID") in ('DAMAGED 4','DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST') & col("VEH_DMAG_SCL_2_ID") in ('DAMAGED 4','DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST')).show()
