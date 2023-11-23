@@ -1,4 +1,5 @@
 from pyspark.sql.functions import *
+from pyspark.sql.window import * /window
 1-----
 df1 = spark.read.option("header",True).option("inferSchema",True).csv("/input_data/Primary_Person_use.csv")
 df1.filter("PRSN_INJRY_SEV_ID =='KILLED' and PRSN_GNDR_ID == 'MALE'" ).count()
@@ -18,11 +19,13 @@ df_top_15=df1.join(df2, df1.CRASH_ID == df2.CRASH_ID ,"inner").filter("PRSN_INJR
 df_top_5=df1.join(df2, df1.CRASH_ID == df2.CRASH_ID ,"inner").filter("PRSN_INJRY_SEV_ID in ('KILLED' ,'INCAPACITATING INJURY' ,'NON-INCAPACITATING INJURY','POSSIBLE INJURY')").groupBy("VEH_MAKE_ID").count().orderBy(desc("count")).limit(5)
 df_top_15.subtract(df_top_5).select(df_top_15.VEH_MAKE_ID).show()
 
-5---VEH_BODY_STYL_ID
-df2.VEH_BODY_STYL_ID,
+5---
 df_temp = df1.join(df2, df1.CRASH_ID == df2.CRASH_ID ,"inner").groupBy("PRSN_ETHNICITY_ID","VEH_BODY_STYL_ID").agg(count("PRSN_ETHNICITY_ID").alias("ETHNICITY_count")).orderBy(col("VEH_BODY_STYL_ID"),col("ETHNICITY_count").desc()).select(df2.VEH_BODY_STYL_ID,df1.PRSN_ETHNICITY_ID,"ETHNICITY_count").show()
-df_temp.groupBy("PRSN_ETHNICITY_ID","VEH_BODY_STYL_ID").max("ETHNICITY_count").orderBy(col("VEH_BODY_STYL_ID")).show()
 
+df_tempp=df_temp.withColumn("count_rank",rank().over(Window.partitionBy("VEH_BODY_STYL_ID").orderBy(desc("ETHNICITY_count")))).filter("count_rank == 1 and VEH_BODY_STYL_ID in ('NA','NOT REPORTED','OTHER  (EXPLAIN IN NARRATIVE)')").select("PRSN_ETHNICITY_ID","VEH_BODY_STYL_ID").show()
 
-df1.filter(col("PRSN_ALC_RSLT_ID") =='Positive' & col("DRVR_ZIP").isNotNull()).groupBy("DRVR_ZIP").agg(count('*').alias("Count")).orderBy(desc("Count")).limit(5).show()\
+6-----
 
+df1.filter((col("PRSN_ALC_RSLT_ID") =='Positive') & col("DRVR_ZIP").isNotNull()).groupBy("DRVR_ZIP").agg(count('*').alias("Count")).orderBy(desc("Count")).limit(5).show()
+
+7--
