@@ -22,3 +22,7 @@ df_top_15.subtract(df_top_5).select(df_top_15.VEH_MAKE_ID).show()
 df2.VEH_BODY_STYL_ID,
 df_temp = df1.join(df2, df1.CRASH_ID == df2.CRASH_ID ,"inner").groupBy("PRSN_ETHNICITY_ID","VEH_BODY_STYL_ID").agg(count("PRSN_ETHNICITY_ID").alias("ETHNICITY_count")).orderBy(col("VEH_BODY_STYL_ID"),col("ETHNICITY_count").desc()).select(df2.VEH_BODY_STYL_ID,df1.PRSN_ETHNICITY_ID,"ETHNICITY_count").show()
 df_temp.groupBy("PRSN_ETHNICITY_ID","VEH_BODY_STYL_ID").max("ETHNICITY_count").orderBy(col("VEH_BODY_STYL_ID")).show()
+
+
+df1.filter(col("PRSN_ALC_RSLT_ID") =='Positive' & col("DRVR_ZIP").isNotNull()).groupBy("DRVR_ZIP").agg(count('*').alias("Count")).orderBy(desc("Count")).limit(5).show()\
+
