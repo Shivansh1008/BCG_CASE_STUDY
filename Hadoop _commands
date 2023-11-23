@@ -1,4 +1,4 @@
-hdfs dfs -ls /input_data
+hdfs dfs -ls 
 hadoop fs -mkdir /input_data
 hdfs dfs -put BCG_SPARK_CASE_STUDY/Data/Primary_Person_use.csv /input_data
 hdfs dfs -put BCG_SPARK_CASE_STUDY/Data/Damages_use.csv /input_data
@@ -6,3 +6,4 @@ hdfs dfs -put BCG_SPARK_CASE_STUDY/Data/Charges_use.csv /input_data
 hdfs dfs -put BCG_SPARK_CASE_STUDY/Data/Endorse_use.csv /input_data
 hdfs dfs -put BCG_SPARK_CASE_STUDY/Data/Restrict_use.csv /input_data
 hdfs dfs -put BCG_SPARK_CASE_STUDY/Data/Units_use.csv /input_data
+hdfs dfs -ls /input_data
