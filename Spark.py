@@ -33,3 +33,6 @@ df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERT
 
 
 df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERTY") =='NONE') & col("VEH_DMAG_SCL_1_ID").isin('DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST') & (df1.CRASH_ID==14870169)).select(df2.VEH_DMAG_SCL_2_ID,df2.CRASH_ID).show() 
+
+8--
+df1.join(df4,df1.CRASH_ID == df4.CRASH_ID ,"inner").join(df2,df1.CRASH_ID == df2.CRASH_ID ,"inner").filter(col("CHARGE").like("%CONTROL SPEED%") & col("DRVR_LIC_TYPE_ID").isin("COMMERCIAL DRIVER LIC.","DRIVER LICENSE")).groupBy("VEH_COLOR_ID").count().orderBy(desc("count")).limit(10).select(df1.CRASH_ID ,df4.CHARGE,df1.DRVR_LIC_TYPE_ID,df2.VEH_MAKE_ID,df2.VEH_COLOR_ID).show()
