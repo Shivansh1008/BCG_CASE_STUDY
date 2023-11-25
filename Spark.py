@@ -36,3 +36,4 @@ df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERT
 
 8--
 df1.join(df4,df1.CRASH_ID == df4.CRASH_ID ,"inner").join(df2,df1.CRASH_ID == df2.CRASH_ID ,"inner").filter(col("CHARGE").like("%CONTROL SPEED%") & col("DRVR_LIC_TYPE_ID").isin("COMMERCIAL DRIVER LIC.","DRIVER LICENSE")).groupBy("VEH_COLOR_ID").count().orderBy(desc("count")).limit(10).select(df1.CRASH_ID ,df4.CHARGE,df1.DRVR_LIC_TYPE_ID,df2.VEH_MAKE_ID,df2.VEH_COLOR_ID).show()
+Determine the Top 5 Vehicle Makes where drivers are charged with speeding related offences, has licensed Drivers, used top 10 used vehicle colours and had car licensed with the Top 25 states with highest number of offences (to be deduced from the data)
