@@ -1,6 +1,13 @@
+import pyspark
+from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
-from pyspark.sql.window import * /window
-1-----
+from pyspark.sql.window import *
+
+if __name__ == '__main__':
+    #Creating spark session
+    spark = SparkSession.builder.master("spark://localhost:7077").appName("BCG_CASE_STUDY").getOrCreate()
+
+
 df1 = spark.read.option("header",True).option("inferSchema",True).csv("/input_data/Primary_Person_use.csv")
 df1.filter("PRSN_INJRY_SEV_ID =='KILLED' and PRSN_GNDR_ID == 'MALE'" ).count()
 
@@ -29,11 +36,21 @@ df_tempp=df_temp.withColumn("count_rank",rank().over(Window.partitionBy("VEH_BOD
 df1.filter((col("PRSN_ALC_RSLT_ID") =='Positive') & col("DRVR_ZIP").isNotNull()).groupBy("DRVR_ZIP").agg(count('*').alias("Count")).orderBy(desc("Count")).limit(5).show()
 
 7--
-df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERTY") =='NONE') & col("VEH_DMAG_SCL_1_ID") in ('DAMAGED 4','DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST') & col("VEH_DMAG_SCL_2_ID") in ('DAMAGED 4','DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST')).show()
+
+df3 = spark.read.option("header",True).option("inferSchema",True).csv("/input_data/Damages_use.csv")
 
 
-df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERTY") =='NONE') & col("VEH_DMAG_SCL_1_ID").isin('DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST') & (df1.CRASH_ID==14870169)).select(df2.VEH_DMAG_SCL_2_ID,df2.CRASH_ID).show() 
 
-8--
-df1.join(df4,df1.CRASH_ID == df4.CRASH_ID ,"inner").join(df2,df1.CRASH_ID == df2.CRASH_ID ,"inner").filter(col("CHARGE").like("%CONTROL SPEED%") & col("DRVR_LIC_TYPE_ID").isin("COMMERCIAL DRIVER LIC.","DRIVER LICENSE")).groupBy("VEH_COLOR_ID").count().orderBy(desc("count")).limit(10).select(df1.CRASH_ID ,df4.CHARGE,df1.DRVR_LIC_TYPE_ID,df2.VEH_MAKE_ID,df2.VEH_COLOR_ID).show()
-Determine the Top 5 Vehicle Makes where drivers are charged with speeding related offences, has licensed Drivers, used top 10 used vehicle colours and had car licensed with the Top 25 states with highest number of offences (to be deduced from the data)
+df2.join(df3,df2.CRASH_ID == df3.CRASH_ID ,"inner").filter((col("DAMAGED_PROPERTY") =='NONE') & col("VEH_DMAG_SCL_1_ID").isin('DAMAGED 5','DAMAGED 6','DAMAGED 7 HIGHEST')).select(df2.CRASH_ID).distinct().count()
+
+8---
+
+df4= spark.read.option("header",True).option("inferSchema",True).csv("/input_data/Charges_use.csv")
+
+
+df_vehicle_model=df1.join(df4,df1.CRASH_ID == df4.CRASH_ID ,"inner").join(df2,df1.CRASH_ID == df2.CRASH_ID ,"inner").filter(col("CHARGE").like("%CONTROL SPEED%") & col("DRVR_LIC_TYPE_ID").isin("COMMERCIAL DRIVER LIC.","DRIVER LICENSE") & col("VEH_COLOR_ID").isin(df_colour_id) & col("VEH_LIC_STATE_ID").isin(df_lic_state)).groupBy("VEH_MAKE_ID").count().orderBy(desc("count")).limit(5).select(df2.VEH_MAKE_ID).show()
+
+df_lic_state=df2.groupBy("VEH_LIC_STATE_ID").count().orderBy(desc("count")).limit(25).select("VEH_LIC_STATE_ID").rdd.flatMap(lambda x:x).collect()
+
+df_colour_id=df2.groupBy("VEH_COLOR_ID").count().orderBy(desc("count")).limit(10).select("VEH_COLOR_ID").rdd.flatMap(lambda x:x).collect()
+
